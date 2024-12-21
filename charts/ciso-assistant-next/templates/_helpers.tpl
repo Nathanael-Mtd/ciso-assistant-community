@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "ciso-assistant-next.name" -}}
+{{- define "ciso-assistant.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "ciso-assistant-next.fullname" -}}
+{{- define "ciso-assistant.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -24,33 +24,32 @@ Create a default fully qualified app name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "ciso-assistant-next.chart" -}}
+{{- define "ciso-assistant.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/* 
-Create CISO Application app version.
+Define CISO Assistant default tag version.
 */}}
-{{- define "ciso-assistant-next.defaultTag" -}}
+{{- define "ciso-assistant.defaultTag" -}}
 {{- default .Chart.AppVersion .Values.global.image.tag -}}
 {{- end -}}
 
 {{/*
 Return valid version label
 */}}
-{{- define "ciso-assistant-next.versionLabelValue" -}}
-{{ regexReplaceAll "[^-A-Za-z0-9_.]" (include "ciso-assistant-next.defaultTag" .) "-" | trunc 63 | trimAll "-" | trimAll "_" | trimAll "." | quote }}
+{{- define "ciso-assistant.versionLabelValue" -}}
+{{ regexReplaceAll "[^-A-Za-z0-9_.]" (include "ciso-assistant.defaultTag" .) "-" | trunc 63 | trimAll "-" | trimAll "_" | trimAll "." | quote }}
 {{- end -}}
 
 {{/*
 Common labels
 */}}
-{{- define "ciso-assistant-next.labels" -}}
-helm.sh/chart: {{ include "ciso-assistant-next.chart" .context }}
-{{ include "ciso-assistant-next.selectorLabels" (dict "context" .context "component" .component "name" .name) }}
+{{- define "ciso-assistant.labels" -}}
+helm.sh/chart: {{ include "ciso-assistant.chart" .context }}
+{{ include "ciso-assistant.selectorLabels" (dict "context" .context "component" .component "name" .name) }}
 app.kubernetes.io/managed-by: {{ .context.Release.Service }}
-app.kubernetes.io/part-of: ciso-assistant-next
-app.kubernetes.io/version: {{ include "ciso-assistant-next.versionLabelValue" .context }}
+app.kubernetes.io/version: {{ include "ciso-assistant.versionLabelValue" .context }}
 {{- with .context.Values.global.commonLabels }}
 {{ toYaml . }}
 {{- end }}
@@ -59,15 +58,18 @@ app.kubernetes.io/version: {{ include "ciso-assistant-next.versionLabelValue" .c
 {{/*
 Selector labels
 */}}
-{{- define "ciso-assistant-next.selectorLabels" -}}
-{{- if .name -}}
-app.kubernetes.io/name: {{ include "ciso-assistant-next.name" .context }}-{{ .name }}
-{{ end -}}
+{{- define "ciso-assistant.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "ciso-assistant.name" .context }}
 app.kubernetes.io/instance: {{ .context.Release.Name }}
 {{- if .component }}
 app.kubernetes.io/component: {{ .component }}
 {{- end }}
 {{- end }}
 
-
-
+{{/*
+Define complete url based on scheme and domain
+*/}}
+{{- define "ciso-assistant.url" -}}
+{{- $scheme := ternary "https" "http" .Values.ingress.tls -}}
+{{- printf "%s://%s" $scheme .Values.global.domain -}}
+{{- end -}}
