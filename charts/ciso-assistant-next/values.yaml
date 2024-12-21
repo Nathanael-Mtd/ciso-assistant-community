@@ -78,6 +78,9 @@ backend:
     size: 5Gi
     accessMode: ReadWriteOnce
 
+  # -- Enable Django debug mode
+  djangoDebug: false
+
   ## Backend image
   image:
     # -- Registry to use for the backend
@@ -200,13 +203,12 @@ frontend:
     labels: {}
     # -- Frontend service type
     type: ClusterIP
-    # -- Frontend service http port for NodePort service type (only if `frontend.service.type` is set to "NodePort")
-    nodePortHttp: ""
+    # -- Frontend service http port for NodePort service type (only if `backend.service.type` is set to "NodePort")
+    nodePorts:
+      http: ""
     # -- Frontend service http port
-    servicePortHttp: 80
-    # -- Frontend service https port appProtocol
-    ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#application-protocol
-    servicePortHttpsAppProtocol: ""
+    servicePorts:
+      http: 80
     # -- The class of the load balancer implementation
     loadBalancerClass: ""
     # -- LoadBalancer will get created with the IP specified in this field
