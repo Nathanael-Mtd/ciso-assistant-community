@@ -1,0 +1,302 @@
+## CISO Assistant configuration
+## Ref: https://github.com/intuitem/ciso-assistant-community  
+##
+
+# -- Provide a name in place of `ciso-assistant-next`
+nameOverride: ciso-assistant-next
+# -- String to fully override `"ciso-assistant-next.fullname"`
+fullnameOverride: ""
+
+## Globally shared configuration
+global:
+  # -- Default domain used by all components
+  ## Used for ingresses, certificates, environnement vars, etc.
+  domain: octopus.foo.bar
+
+  # Default image used by all components
+  image:
+    # -- If defined, a registry applied to all CISO Assistant deployments
+    registry: ghcr.io
+    # -- Overrides the global CISO Assistant image tag whose default is the chart appVersion
+    tag: ""
+    # -- If defined, a imagePullPolicy applied to all CISO Assistant deployments
+    imagePullPolicy: IfNotPresent
+
+  # -- Secrets with credentials to pull images from a private registry
+  imagePullSecrets: []
+
+  # -- Labels to add to all deployed objects
+  commonLabels: {}
+
+  # -- Annotations to add to all deployed objects
+  commonAnnotations: {}
+
+  # -- Kubernetes cluster domain name
+  clusterDomain: cluster.local
+
+  # -- Toggle and define pod-level security context
+  podSecurityContext:
+    enabled: false
+    fsGroupChangePolicy: Always
+    sysctls: []
+    supplementalGroups: []
+    fsGroup: 1001
+
+  # -- Default node selector for all components
+  nodeSelector: {}
+
+  # -- Default tolerations for all components
+  tolerations: []
+
+## CISO Assistant backend
+backend:
+  # -- Email admin for initial configuration
+  emailAdmin: admin@example.net
+  
+  # -- SMTP configuration
+  smtp:
+    defaultFrom: no-reply@ciso-assistant.net
+    debug: false
+    primary:
+      host: primary.cool-mailer.net
+      user: apikey
+      password: "primary_password_here"
+      port: 587
+      useTls: true
+    rescue:
+      host: smtp.secondary.mailer.cloud
+      user: username
+      password: "rescue_password_here"
+      port: 587
+      useTls: true
+
+  # -- Set the database type (sqlite or pgsql)
+  databaseType: sqlite
+
+  # -- Backend persistence configuration (used for sqlitedb and proofs storage)
+  persistence:
+    size: 5Gi
+    accessMode: ReadWriteOnce
+
+  ## Backend image
+  image:
+    # -- Registry to use for the backend
+    # @default -- `""` (defaults to global.image.registry)
+    registry: ""
+    # -- Repository to use for the backend
+    repository: intuitem/ciso-assistant-community/backend
+    # -- Tag to use for the backend
+    # @default -- `""` (defaults to global.image.tag)
+    tag: ""
+    # -- Image pull policy for the backend
+    # @default -- `""` (defaults to global.image.imagePullPolicy)
+    imagePullPolicy: ""
+
+  # -- Secrets with credentials to pull images from a private registry
+  # @default -- `[]` (defaults to global.imagePullSecrets)
+  imagePullSecrets: []
+
+  # -- Additional command line arguments to pass to backend
+  extraArgs: []
+
+  # -- Environment variables to pass to backend
+  env: []
+
+  # -- Toggle and define container-level security context
+  containerSecurityContext:
+    enabled: false
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    privileged: false
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+
+  ## Backend service configuration
+  service:
+    # -- Backend service annotations
+    annotations: {}
+    # -- Backend service labels
+    labels: {}
+    # -- Backend service type
+    type: ClusterIP
+    # -- Backend service http port for NodePort service type (only if `backend.service.type` is set to "NodePort")
+    nodePorts:
+      http: ""
+    # -- Backend service http port
+    servicePorts:
+      http: 80
+    # -- The class of the load balancer implementation
+    loadBalancerClass: ""
+    # -- LoadBalancer will get created with the IP specified in this field
+    loadBalancerIP: ""
+    # -- Source IP ranges to allow access to service from
+    ## Ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+    loadBalancerSourceRanges: []
+    # -- Backend service external IPs
+    externalIPs: []
+    # -- Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
+    ## Ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    externalTrafficPolicy: Cluster
+    # -- Used to maintain session affinity. Supports `ClientIP` and `None`
+    ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+    sessionAffinity: None
+
+
+## CISO Assistant frontend
+frontend:
+  # -- Configure body size limit for uploads in bytes (unit suffix like K/M/G can be used)
+  bodySizeLimit: "50M"
+  
+  ## Frontend image
+  image:
+    # -- Registry to use for the frontend
+    # @default -- `""` (defaults to global.image.registry)
+    registry: ""
+    # -- Repository to use for the frontend
+    repository: intuitem/ciso-assistant-community/frontend
+    # -- Tag to use for the frontend
+    # @default -- `""` (defaults to global.image.tag)
+    tag: ""
+    # -- Image pull policy for the frontend
+    # @default -- `""` (defaults to global.image.imagePullPolicy)
+    imagePullPolicy: ""
+
+  # -- Secrets with credentials to pull images from a private registry
+  # @default -- `[]` (defaults to global.imagePullSecrets)
+  imagePullSecrets: []
+
+  # -- Additional command line arguments to pass to frontend
+  extraArgs: []
+
+  # -- Environment variables to pass to frontend
+  env: []
+
+  # -- Toggle and define container-level security context
+  containerSecurityContext:
+    enabled: false
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    privileged: false
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+
+  ## Frontend service configuration
+  service:
+    # -- Frontend service annotations
+    annotations: {}
+    # -- Frontend service labels
+    labels: {}
+    # -- Frontend service type
+    type: ClusterIP
+    # -- Frontend service http port for NodePort service type (only if `frontend.service.type` is set to "NodePort")
+    nodePortHttp: ""
+    # -- Frontend service http port
+    servicePortHttp: 80
+    # -- Frontend service https port appProtocol
+    ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#application-protocol
+    servicePortHttpsAppProtocol: ""
+    # -- The class of the load balancer implementation
+    loadBalancerClass: ""
+    # -- LoadBalancer will get created with the IP specified in this field
+    loadBalancerIP: ""
+    # -- Source IP ranges to allow access to service from
+    ## Ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+    loadBalancerSourceRanges: []
+    # -- Frontend service external IPs
+    externalIPs: []
+    # -- Denotes if this Service desires to route external traffic to node-local or cluster-wide endpoints
+    ## Ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+    externalTrafficPolicy: Cluster
+    # -- Used to maintain session affinity. Supports `ClientIP` and `None`
+    ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+    sessionAffinity: None
+
+
+
+# CISO Application ingress configuration
+ingress:
+  # -- Enable an ingress resource for the CISO Application
+  enabled: false
+  # -- Additional ingress labels
+  labels: {}
+  # -- Additional ingress annotations
+  annotations: {}
+    # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # cert-manager.io/cluster-issuer: letsencrypt
+
+  # -- Defines which ingress controller will implement the resource
+  ingressClassName: ""
+  # -- CISO Application hostname
+  # @default -- `""` (defaults to global.domain)
+  hostname: ""
+  # -- The path to CISO Application
+  path: /
+  # -- Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific`
+  pathType: Prefix
+
+  # -- Enable TLS configuration for the hostname defined at `ingress.hostname`
+  ## TLS certificate will be retrieved from a TLS secret `ciso-assistant-tls`
+  ## You can create this secret manually via `certificateSecret` option
+  tls: false
+  # -- Custom TLS certificate as secret
+  ## Note: 'key' and 'certificate' are expected in PEM format
+  certificateSecret: {}
+    # key: |-
+    #   -----BEGIN RSA PRIVATE KEY-----
+    #   ...
+    #   -----END RSA PRIVATE KEY-----
+    # certificate: |-
+    #   -----BEGIN CERTIFICATE-----
+    #   ...
+    #   -----END CERTIFICATE-----
+
+  # -- The list of additional hostnames to be covered by ingress record
+  # @default -- `[]`
+  extraHosts: []
+    # - name: squid.foo.bar
+    #   path: /
+
+  # -- Additional ingress paths
+  # @default -- `[]`
+  ## Note: Supports use of custom Helm templates
+  extraPaths: []
+    # - path: /*
+    #   pathType: Prefix
+    #   backend:
+    #     service:
+    #       name: ssl-redirect
+    #       port:
+    #         name: use-annotation
+
+  # -- Additional ingress rules
+  ## Ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
+  extraRules: []
+    # - host: squid.foo.bar
+    #   http:
+    #     paths:
+    #     - path: /
+    #       pathType: Prefix
+    #       backend:
+    #         service:
+    #           name: '{{ include "ciso-assistant-next.fullname" . }}'
+    #           port:
+    #             name: http
+
+  # -- Additional TLS configuration
+  # @default -- `[]`
+  extraTls: []
+    # - hosts:
+    #   - squid.foo.bar
+    #   secretName: your-certificate-name
