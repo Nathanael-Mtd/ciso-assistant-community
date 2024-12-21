@@ -225,11 +225,9 @@ frontend:
     ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
     sessionAffinity: None
 
-
-
-# CISO Application ingress configuration
+# CISO Assistant ingress configuration
 ingress:
-  # -- Enable an ingress resource for the CISO Application
+  # -- Enable an ingress resource for the CISO Assistant
   enabled: false
   # -- Additional ingress labels
   labels: {}
@@ -240,10 +238,10 @@ ingress:
 
   # -- Defines which ingress controller will implement the resource
   ingressClassName: ""
-  # -- CISO Application hostname
+  # -- CISO Assistant hostname
   # @default -- `""` (defaults to global.domain)
   hostname: ""
-  # -- The path to CISO Application
+  # -- The path to CISO Assistant
   path: /
   # -- Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific`
   pathType: Prefix
